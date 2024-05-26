@@ -35,8 +35,8 @@ class MyApp extends StatelessWidget {
           ),
         ),
         scaffoldBackgroundColor: Colors.black,
-        textTheme: GoogleFonts.robotoTextTheme(
-          Theme.of(context).textTheme.apply(bodyColor: Colors.white),
+        textTheme: GoogleFonts.latoTextTheme(
+          Theme.of(context).textTheme.apply(bodyColor: Colors.black),
         ),
       ),
       home: const MyHomePage(),
@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
           "FundAi",
           style: GoogleFonts.dancingScript(
             color: Colors.black,
-            fontSize: 30,
+            fontSize: 34,
           ),
         ),
         flexibleSpace: Container(
@@ -211,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
             height: MediaQuery.of(context).size.height - 150,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
                   child: Padding(
@@ -226,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 end: Alignment.bottomCenter,
                               )
                             : null,
-                        color: filePath != null ? Colors.black : null,
+                        color: Colors.black,
                         borderRadius: const BorderRadius.all(Radius.circular(10.0)),
                       ),
                       child: Center(
@@ -267,38 +267,37 @@ class _MyHomePageState extends State<MyHomePage> {
                                       )
                                     : Column(
                                         children: [
-                                          Image.file(
-                                            filePath!,
-                                            height: 250,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          Card(
-                                            color: Colors.black,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10.0),
+                                          ClipOval(
+                                            child: Image.file(
+                                              filePath!,
+                                              height: 250,
+                                              width: 250,
+                                              fit: BoxFit.cover,
                                             ),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(20),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    label,
-                                                    style: GoogleFonts.roboto(
-                                                      color: Colors.white,
-                                                      fontSize: 25,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Container(
+                                            color: Colors.black,
+                                            padding: const EdgeInsets.all(10),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  'Sınıf: $label',
+                                                  style: GoogleFonts.roboto(
+                                                    color: Colors.white,
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
-                                                  Text(
-                                                    'Doğruluk: %${(confidence * 100).toStringAsFixed(2)}',
-                                                    style: GoogleFonts.roboto(
-                                                      color: Colors.white,
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
+                                                ),
+                                                Text(
+                                                  'Doğruluk: %${(confidence * 100).toStringAsFixed(2)}',
+                                                  style: GoogleFonts.roboto(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
@@ -321,8 +320,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: Colors.black,
                           padding: EdgeInsets.zero,
+
                         ),
                         child: Ink(
                           decoration: BoxDecoration(
@@ -372,7 +372,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: Colors.black,
                           padding: EdgeInsets.zero,
                         ),
                         child: Ink(
@@ -450,7 +450,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: Colors.black,
                           padding: EdgeInsets.zero,
                         ),
                         child: Ink(
