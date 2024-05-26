@@ -1,39 +1,42 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
-import 'package:http_parser/http_parser.dart';  // MediaType için
+import 'package:http_parser/http_parser.dart'; // MediaType için
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'FundusEye',
+      title: 'FundAi',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.teal,
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Colors.purple,
+          backgroundColor: Colors.teal,
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           centerTitle: true,
           titleTextStyle: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
           ),
         ),
         scaffoldBackgroundColor: Colors.black,
-        textTheme: const TextTheme(
-          bodyText2: TextStyle(color: Colors.white),
+        textTheme: GoogleFonts.robotoTextTheme(
+          Theme.of(context).textTheme.apply(bodyColor: Colors.white),
         ),
       ),
       home: const MyHomePage(),
@@ -42,7 +45,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({Key? key});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -58,15 +61,25 @@ class _MyHomePageState extends State<MyHomePage> {
     var dio = Dio();
     String? mimeType = lookupMimeType(imageFile.path);
 
-    if (mimeType == null || (!['image/jpeg', 'image/png'].contains(mimeType))) {
+    if (mimeType == null ||
+        (!['image/jpg', 'image/jpeg', 'image/png'].contains(mimeType))) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Unsupported File Type'),
-          content: const Text('Please select a JPEG or PNG image.'),
+          title: Text(
+            'Desteklenmeyen Dosya Türü',
+            style: GoogleFonts.roboto(),
+          ),
+          content: Text(
+            'Lütfen bir JPEG veya PNG resmi seçin.',
+            style: GoogleFonts.roboto(),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text(
+                'Tamam',
+                style: GoogleFonts.roboto(),
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -76,19 +89,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     FormData formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(imageFile.path,
-          filename: 'uploaded_image.jpg', contentType: MediaType.parse(mimeType)),
+      'file': await MultipartFile.fromFile(
+        imageFile.path,
+        filename: 'uploaded_image.jpg',
+        contentType: MediaType.parse(mimeType),
+      ),
     });
 
     if (await imageFile.length() > 5 * 1024 * 1024) {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('File Too Large'),
-          content: const Text('File size exceeds 5 MB limit.'),
+          title: Text(
+            'Dosya Çok Büyük',
+            style: GoogleFonts.roboto(),
+          ),
+          content: Text(
+            'Dosya boyutu 5 MB sınırını aşıyor.',
+            style: GoogleFonts.roboto(),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: Text(
+                'Tamam',
+                style: GoogleFonts.roboto(),
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -116,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
         print('HTTP request error with status: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error during request: $e');
+      print('İstek sırasında hata oluştu: $e');
     } finally {
       setState(() {
         isLoading = false; // İşlem tamamlandığında
@@ -132,10 +157,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
     var imageFile = File(image.path);
 
+    label = "";
+
     setState(() {
       filePath = imageFile;
     });
-    await uploadFile(imageFile);
   }
 
   Future<void> pickImageCamera() async {
@@ -146,94 +172,340 @@ class _MyHomePageState extends State<MyHomePage> {
 
     var imageFile = File(image.path);
 
+    label = "";
+
     setState(() {
       filePath = imageFile;
     });
-    await uploadFile(imageFile);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("FundusEye"),
-        backgroundColor: Colors.deepPurple,
+        title: Text(
+          "FundAi",
+          style: GoogleFonts.dancingScript(
+            color: Colors.black,
+            fontSize: 30,
+          ),
+        ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
+              colors: [Colors.teal, Colors.tealAccent],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Colors.deepPurple, Colors.purpleAccent],
             ),
           ),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(0.0),
-          child: Container(),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(0.0),
+          child: SizedBox(),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: isLoading
-              ? const CircularProgressIndicator()
-              : (filePath == null
-              ? const Text('No image selected.',
-              style: TextStyle(color: Colors.white))
-              : Container(
-            margin: const EdgeInsets.all(20),
+      body: Center(
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: min(MediaQuery.of(context).size.width, 600),
+            height: MediaQuery.of(context).size.height - 150,
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.file(filePath!,
-                    width: MediaQuery.of(context).size.width * 0.8),
-                Text('Label: $label',
-                    style: const TextStyle(color: Colors.white)),
-                Text(
-                    'Confidence: ${confidence.toStringAsFixed(2)}',
-                    style: const TextStyle(color: Colors.white)),
+                SizedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 450,
+                      decoration: BoxDecoration(
+                        gradient: filePath == null
+                            ? const LinearGradient(
+                                colors: [Colors.teal, Colors.tealAccent],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              )
+                            : null,
+                        color: filePath != null ? Colors.black : null,
+                        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            isLoading
+                                ? const CircularProgressIndicator()
+                                : (filePath == null
+                                    ? Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.image_not_supported_rounded,
+                                            size: 100,
+                                            color: Colors.black,
+                                          ),
+                                          const SizedBox(height: 20),
+                                          Text(
+                                            'Lütfen tahmin edilmesini istediğiniz göz görüntüsünü yükleyin.',
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.roboto(
+                                              color: Colors.black,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            'Desteklenen format: JPG, JPEG, PNG',
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.roboto(
+                                              color: Colors.black,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        children: [
+                                          Image.file(
+                                            filePath!,
+                                            height: 250,
+                                            fit: BoxFit.cover,
+                                          ),
+                                          Card(
+                                            color: Colors.black,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                            ),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(20),
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    label,
+                                                    style: GoogleFonts.roboto(
+                                                      color: Colors.white,
+                                                      fontSize: 25,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Doğruluk: %${(confidence * 100).toStringAsFixed(2)}',
+                                                    style: GoogleFonts.roboto(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: 100,
+                      child: ElevatedButton(
+                        onPressed: pickImageGallery,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.teal, Colors.tealAccent],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.image,
+                                    size: 40,
+                                    color: Colors.black,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      "Galeriden Seç",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.roboto(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: 100,
+                      child: ElevatedButton(
+                        onPressed: pickImageCamera,
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.teal, Colors.tealAccent],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.camera_alt,
+                                    size: 40,
+                                    color: Colors.black,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      "Fotoğraf Çek",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.roboto(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.3,
+                      height: 100,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (filePath != null) {
+                            uploadFile(filePath!);
+                          } else {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text(
+                                  'Resim Seçilmedi',
+                                  style: GoogleFonts.roboto(),
+                                ),
+                                content: Text(
+                                  'Lütfen önce bir resim seçin.',
+                                  style: GoogleFonts.roboto(),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: Text(
+                                      'Tamam',
+                                      style: GoogleFonts.roboto(),
+                                    ),
+                                    onPressed: () => Navigator.of(context).pop(),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          backgroundColor: Colors.transparent,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Colors.teal, Colors.tealAccent],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.upload_file,
+                                    size: 40,
+                                    color: Colors.black,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      "Analiz Et",
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.roboto(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-          )),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showPopupMenu,
-        tooltip: 'Options',
-        child: const Icon(Icons.attachment, color: Colors.white70),
       ),
     );
   }
 
-  void _showPopupMenu() async {
-    await showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-          MediaQuery.of(context).size.width - 50,
-          MediaQuery.of(context).size.height - 80,
-          0,
-          0),
-      items: [
-        PopupMenuItem<String>(
-          child: Text('Take a photo',
-              style: TextStyle(color: Colors.purple.shade300)),
-          value: 'Take a photo',
-        ),
-        PopupMenuItem<String>(
-          child: Text('Pick from gallery',
-              style: TextStyle(color: Colors.purple.shade300)),
-          value: 'Pick from gallery',
-        ),
-      ],
-      elevation: 8.0,
-      color: Colors.deepPurple,
-    ).then((value) {
-      handleMenuAction(value ?? '');
-    });
-  }
-
   void handleMenuAction(String choice) {
-    if (choice == 'Take a photo') {
+    if (choice == 'Fotoğraf çek') {
       pickImageCamera();
-    } else if (choice == 'Pick from gallery') {
+    } else if (choice == 'Galeriden seç') {
       pickImageGallery();
     }
   }
